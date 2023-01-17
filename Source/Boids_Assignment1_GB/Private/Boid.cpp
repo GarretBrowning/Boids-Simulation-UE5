@@ -26,6 +26,14 @@ void ABoid::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	
+
+	//DrawDebugDirectionalArrow(World)
+	
+	if (DEBUG_MODE_ENABLED)
+	{
+		GEngine->AddOnScreenDebugMessage(FMath::Rand(), GetWorld()->GetDeltaSeconds(), FColor::Yellow, "Debug mode enabled!");
+	}
 
 	// Add the current velocity to the Boid's position each frame: #Todo: [HAVE NOT ACCOUNTED FOR DELTA TIME YET!]
 	//AddActorWorldOffset(myVelocity);

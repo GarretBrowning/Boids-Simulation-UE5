@@ -6,6 +6,8 @@
 #include "GameFramework/Pawn.h"
 #include "Boid.generated.h"
 
+constexpr auto DEBUG_MODE_ENABLED = 0;
+
 UCLASS()
 class BOIDS_ASSIGNMENT1_GB_API ABoid : public APawn
 {
@@ -15,7 +17,7 @@ class BOIDS_ASSIGNMENT1_GB_API ABoid : public APawn
 	float myDetectionRadius{ 100.0 };
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Boid Defaults", meta = (AllowPrivateAccess = "true"))
-	float myMaxSpeed{ 1.0};
+	float myMaxSpeed{ 1.0 };
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid Defaults", meta = (AllowPrivateAccess = "true"))
 	FVector myVelocity;
