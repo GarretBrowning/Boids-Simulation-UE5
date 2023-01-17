@@ -11,7 +11,14 @@ ABoid::ABoid()
 
 	// Set the Boid's velocity to a random unit vector as its velocity:
 	myVelocity = FMath::VRand();
+	
+	// Root Component Setup:
+	myRoot = CreateDefaultSubobject<USceneComponent>(myRootComponentName);
+	RootComponent = myRoot;
 
+	myBoidBody = CreateDefaultSubobject<UStaticMeshComponent>(myBoidBodyName);
+	myBoidBody->AttachToComponent(myRoot, FAttachmentTransformRules::KeepRelativeTransform);
+	myBoidBody->SetRelativeRotation(FRotator(0.0, 90.0, -90.0));
 }
 
 // Called when the game starts or when spawned
@@ -30,10 +37,15 @@ void ABoid::Tick(float DeltaTime)
 
 	//DrawDebugDirectionalArrow(World)
 	
+	/*if (DEBUG_MODE_ENABLED)
+	{*/
+	//#if DEBUG_MODE_ENABLED
 	if (DEBUG_MODE_ENABLED)
 	{
 		GEngine->AddOnScreenDebugMessage(FMath::Rand(), GetWorld()->GetDeltaSeconds(), FColor::Yellow, "Debug mode enabled!");
 	}
+	//#endif
+	//}
 
 	// Add the current velocity to the Boid's position each frame: #Todo: [HAVE NOT ACCOUNTED FOR DELTA TIME YET!]
 	//AddActorWorldOffset(myVelocity);

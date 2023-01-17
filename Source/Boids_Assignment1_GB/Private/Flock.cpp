@@ -3,6 +3,9 @@
 
 #include "Flock.h"
 
+#include "Boid.h"
+#include "Kismet/GameplayStatics.h" // Needed for grabbing all ofo the Boids within the current game level.
+
 // Sets default values
 AFlock::AFlock()
 {
@@ -15,6 +18,13 @@ AFlock::AFlock()
 void AFlock::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Iterating through the valid list of Boid actors within the current level and adding them to the Boids collection:
+	if (const UWorld* World = GetWorld())
+	{
+		UGameplayStatics::GetAllActorsOfClass(World, ABoid::StaticClass(), myBoids);
+	}
+	GEngine->AddOnScreenDebugMessage(FMath::Rand(), 5.0f, FColor::Red, FString::FromInt(myBoids.Num()));
 	
 }
 
@@ -31,4 +41,18 @@ void AFlock::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
+
+//FVector AFlock::CalculateCohesion(ABoid* aBoid)
+//{
+//	//TArray< AllActorLocations[];
+//	for (auto Boid : myBoids)
+//	{
+//		//if(Cast<ABoid>(Boid) != aBoid)
+//		//{
+//			
+//		//}
+//	}
+//
+//	return
+//}
 

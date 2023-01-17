@@ -6,12 +6,26 @@
 #include "GameFramework/Pawn.h"
 #include "Boid.generated.h"
 
+
+
+
+//#define DEBUG_MODE_ENABLED 1
 constexpr auto DEBUG_MODE_ENABLED = 0;
+
 
 UCLASS()
 class BOIDS_ASSIGNMENT1_GB_API ABoid : public APawn
 {
 	GENERATED_BODY()
+
+	// Root Component:
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true")) USceneComponent* myRoot;
+	UPROPERTY() FName myRootComponentName = "Root";
+
+	// Boid Visual Representation (Cone):
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true")) UStaticMeshComponent* myBoidBody;
+	UPROPERTY(EditDefaultsOnly) FName myBoidBodyName = " Boid Body";
+
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Boid Defaults", meta = (AllowPrivateAccess = "true"))
 	float myDetectionRadius{ 100.0 };
@@ -24,7 +38,6 @@ class BOIDS_ASSIGNMENT1_GB_API ABoid : public APawn
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid Defaults", meta = (AllowPrivateAccess = "true"))
 	FVector myAcceleration;
-
 
 public:
 	// Sets default values for this pawn's properties
@@ -40,7 +53,6 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 
 
 };
