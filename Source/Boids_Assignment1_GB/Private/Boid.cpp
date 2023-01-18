@@ -59,6 +59,35 @@ void ABoid::Tick(float DeltaTime)
 void ABoid::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+}
 
+void ABoid::DebugCohesion(FVector Cohesion = FVector(0.f))
+{
+	if (const UWorld* world = GetWorld())
+	{
+		DrawDebugDirectionalArrow(world, GetActorLocation(), GetActorLocation() + Cohesion, 15.0f, FColor::Emerald, false, -1, 0, 3);
+
+		GEngine->AddOnScreenDebugMessage(FMath::Rand(), world->GetDeltaSeconds(), FColor::Emerald, FString::Printf(TEXT("Cohesion Vector: %s"), *Cohesion.ToString()));
+	}
+}
+
+void ABoid::DebugAlignment(FVector Alignment)
+{
+	if (const UWorld* world = GetWorld())
+	{
+		DrawDebugDirectionalArrow(world, GetActorLocation(), GetActorLocation() + Alignment, 15.0f, FColor::Blue, false, -1, 0, 3);
+
+		GEngine->AddOnScreenDebugMessage(FMath::Rand(), world->GetDeltaSeconds(), FColor::Blue, FString::Printf(TEXT("Alignment Vector: %s"), *Alignment.ToString()));
+	}
+}
+
+void ABoid::DebugSeparation(FVector Separation)
+{
+	if (const UWorld* world = GetWorld())
+	{
+		DrawDebugDirectionalArrow(world, GetActorLocation(), GetActorLocation() + Separation, 15.0f, FColor::Red, false, -1, 0, 3);
+
+		GEngine->AddOnScreenDebugMessage(FMath::Rand(), world->GetDeltaSeconds(), FColor::Red, FString::Printf(TEXT("Alignment Vector: %s"), *Separation.ToString()));
+	}
 }
 

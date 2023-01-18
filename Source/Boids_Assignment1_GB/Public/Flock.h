@@ -6,6 +6,8 @@
 #include "GameFramework/Pawn.h"
 #include "Flock.generated.h"
 
+//constexpr auto DEBUG_MODE_ENABLED = 1;
+
 class ABoid;
 
 UCLASS()
@@ -16,7 +18,16 @@ class BOIDS_ASSIGNMENT1_GB_API AFlock : public APawn
 	// BlueprintReadWrite for now...
 	// Collection of Boids:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
-	TArray<AActor*> myBoids;
+	TArray<ABoid*> myBoids;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Boids | Multiplier Value", meta = (AllowPrivateAccess = "true"))
+	float CohesionMultiplier{ 200.0 };
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Boids | Multiplier Value", meta = (AllowPrivateAccess = "true"))
+	float AlignmentMultiplier{ 200.0 };
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Boids | Multiplier Value", meta = (AllowPrivateAccess = "true"))
+	float SeparationMultiplier{ 100.0 };
 
 
 public:
@@ -34,6 +45,15 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+
+	// RULES //
+
+	// Calculating Alignment Vector:
+	FVector CalculateAlignment(ABoid* aBoid);
+
 	// Calculating Cohesion Vector:
-	FVector CalculateCohesion();
+	FVector CalculateCohesion(ABoid* aBoid);
+
+	// Calculating Cohesion Vector:
+	FVector CalculateSeparation(ABoid* aBoid);
 };

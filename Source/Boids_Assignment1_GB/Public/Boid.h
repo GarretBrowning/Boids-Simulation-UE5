@@ -6,12 +6,10 @@
 #include "GameFramework/Pawn.h"
 #include "Boid.generated.h"
 
-
-
-
 //#define DEBUG_MODE_ENABLED 1
-constexpr auto DEBUG_MODE_ENABLED = 0;
 
+// Global Constexpr Variable Used As A Debugging Flag:
+constexpr auto DEBUG_MODE_ENABLED = 1;
 
 UCLASS()
 class BOIDS_ASSIGNMENT1_GB_API ABoid : public APawn
@@ -55,4 +53,17 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 
+	// DEBUGGING //
+
+	// Draws a debug arrow in the direction Cohesion is steering the Boid
+	UFUNCTION(BlueprintCallable)
+	void DebugCohesion(FVector Cohesion);
+
+	// Draws a debug arrow in the direction Alignment is steering the Boid
+	UFUNCTION(BlueprintCallable)
+	void DebugAlignment(FVector Alignment);
+
+	// Draws a debug arrow in the direction Separation is steering the Boid
+	UFUNCTION(BlueprintCallable)
+	void DebugSeparation(FVector Separation);
 };
