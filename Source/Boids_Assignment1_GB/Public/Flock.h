@@ -20,14 +20,30 @@ class BOIDS_ASSIGNMENT1_GB_API AFlock : public APawn
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	TArray<ABoid*> myBoids;
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Boids | Multiplier Value", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boids | Multiplier Value", meta = (AllowPrivateAccess = "true"))
 	float CohesionMultiplier{ 210.0 };
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Boids | Multiplier Value", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boids | Multiplier Value", meta = (AllowPrivateAccess = "true"))
 	float AlignmentMultiplier{ 250.0 };
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Boids | Multiplier Value", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boids | Multiplier Value", meta = (AllowPrivateAccess = "true"))
 	float SeparationMultiplier{ 215.0 };
+
+
+	// Debugging for Blueprints:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boids | Debugging", meta = (AllowPrivateAccess = "true"))
+	bool bShowAlignmentDebugLines{ false };
+
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boids | Debugging", meta = (AllowPrivateAccess = "true"))
+	bool bShowCohesionDebugLines{ false };
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boids | Debugging", meta = (AllowPrivateAccess = "true"))
+	bool bShowSeparationDebugLines{ false };
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boids | Debugging", meta = (AllowPrivateAccess = "true"))
+	bool bEnableMovement{ false };
+
 
 
 public:

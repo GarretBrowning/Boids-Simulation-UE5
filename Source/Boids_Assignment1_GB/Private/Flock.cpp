@@ -45,16 +45,30 @@ void AFlock::Tick(float DeltaTime)
 	{
 		for (auto Boid : myBoids)
 		{
-			Boid->DebugCohesion(CalculateCohesion(Boid));
-			Boid->DebugAlignment(CalculateAlignment(Boid));
-			Boid->DebugSeparation(CalculateSeparation(Boid));
+			if (bShowAlignmentDebugLines)
+			{
+				Boid->DebugAlignment(CalculateAlignment(Boid));
+			}
+
+			if (bShowCohesionDebugLines)
+			{
+				Boid->DebugCohesion(CalculateCohesion(Boid));
+			}
+
+			if (bShowSeparationDebugLines)
+			{
+				Boid->DebugSeparation(CalculateSeparation(Boid));	
+			}
 		}
 	}
 
 	// Apply Movement to each Boid in the flock every frame:
-	for (auto Boid : myBoids)
+	if (bEnableMovement)
 	{
-		Boid->ApplyMovement(DeltaTime, CalculateAlignment(Boid), CalculateCohesion(Boid), CalculateSeparation(Boid));
+		for (auto Boid : myBoids)
+		{
+			Boid->ApplyMovement(DeltaTime, CalculateAlignment(Boid), CalculateCohesion(Boid), CalculateSeparation(Boid));
+		}
 	}
 	
 }
