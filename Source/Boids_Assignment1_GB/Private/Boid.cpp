@@ -25,7 +25,7 @@ ABoid::ABoid()
 void ABoid::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	myVelocity = GetActorForwardVector();
 }
 
 // Called every frame
@@ -61,6 +61,39 @@ void ABoid::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+
+// #TODO: Should be refactored, currently should only be called by Flock class for movement:
+void ABoid::ApplyMovement(float DeltaTime, FVector Alignment, FVector Cohesion, FVector Separation)
+{
+	// Update Position:
+	//SetActorLocation(GetActorLocation() + (myVelocity * DeltaTime));
+	AddActorWorldOffset((myVelocity * DeltaTime));
+	//SetActorLocation(GetActorLocation() + (myVelocity * DeltaTime));
+
+	// Update Rotation:
+	//SetActorRotation(myVelocity.ToOrientationQuat());
+	SetActorRotation(FMath::RInterpTo(GetActorRotation(), FRotator(myVelocity.ToOrientationQuat()), DeltaTime, 0.5));
+
+	// Apply Updates to Acceleration:
+
+	FVector Sum = (Alignment + Cohesion + Separation) / 3.0;
+
+	//myAcceleration += Alignment;
+	//myAcceleration += Cohesion;
+	//myAcceleration += Separation;
+	
+	myAcceleration += Sum;
+
+	// Update Velocity:
+	myVelocity += (myAcceleration * DeltaTime);
+
+	// Clamp Velocity Between Min & Max Speed:
+	myVelocity = myVelocity.GetClampedToSize(myMinSpeed, myMaxSpeed);
+
+	// Reset Acceleration back to Zero:
+	myAcceleration = FVector::ZeroVector;
+}
+
 void ABoid::DebugCohesion(FVector Cohesion = FVector(0.f))
 {
 	if (const UWorld* world = GetWorld())
@@ -87,7 +120,7 @@ void ABoid::DebugSeparation(FVector Separation)
 	{
 		DrawDebugDirectionalArrow(world, GetActorLocation(), GetActorLocation() + Separation, 15.0f, FColor::Red, false, -1, 0, 3);
 
-		GEngine->AddOnScreenDebugMessage(FMath::Rand(), world->GetDeltaSeconds(), FColor::Red, FString::Printf(TEXT("Alignment Vector: %s"), *Separation.ToString()));
+		GEngine->AddOnScreenDebugMessage(FMath::Rand(), world->GetDeltaSeconds(), FColor::Red, FString::Printf(TEXT("Separation Vector: %s"), *Separation.ToString()));
 	}
 }
 

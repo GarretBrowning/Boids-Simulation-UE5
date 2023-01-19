@@ -45,12 +45,18 @@ void AFlock::Tick(float DeltaTime)
 	{
 		for (auto Boid : myBoids)
 		{
-			// Boid->DebugCohesion(CalculateCohesion(Boid));
-			// Boid->DebugAlignment(CalculateAlignment(Boid));
+			Boid->DebugCohesion(CalculateCohesion(Boid));
+			Boid->DebugAlignment(CalculateAlignment(Boid));
 			Boid->DebugSeparation(CalculateSeparation(Boid));
 		}
 	}
 
+	// Apply Movement to each Boid in the flock every frame:
+	for (auto Boid : myBoids)
+	{
+		Boid->ApplyMovement(DeltaTime, CalculateAlignment(Boid), CalculateCohesion(Boid), CalculateSeparation(Boid));
+	}
+	
 }
 
 // Called to bind functionality to input
@@ -98,9 +104,8 @@ FVector AFlock::CalculateAlignment(ABoid* aBoid)
 FVector AFlock::CalculateCohesion(ABoid* aBoid)
 {
 	TArray<FVector> BoidLocations;
-	FVector LocationSum(0.f);
+	FVector LocationSum = FVector::ZeroVector; // Fun alternative way of creating a (0,0,0) vector.
 	FVector AverageLocation(0.f);
-
 	FVector Cohesion(0.f);
 
 	// Iterate through all boids and add their locations to an array:
@@ -135,29 +140,31 @@ FVector AFlock::CalculateSeparation(ABoid* aBoid)
 {
 	TArray<FVector> BoidVectors;
 	TArray<float> BoidDistances;
-	FVector LocationSum(0.f);
-	FVector AverageLocation(0.f);
+	FVector SeparationSum(0.f);
+	FVector AverageSeparation(0.f);
 
 	FVector Separation(0.f);
 
 	// iterate through list of boids to find vector in direction facing away from those boids
 	for (auto Boid : myBoids)
 	{
+		// #Todo: Should add nullptr protection
 		if (aBoid != Boid)
 		{
-			float Distance = aBoid->GetDistanceTo(Boid);
 			// Find distance between the current Boid and target Boid:
-			//BoidDistances.Add()
-
-			// (1/distance*distance) * normalized vector
-
-			FVector Direction = (aBoid->GetActorLocation() - Boid->GetActorLocation()).GetSafeNormal();
+			float Distance = aBoid->GetDistanceTo(Boid);
 			
+			// Find direction of vector pointing from current Boid and target Boid:
+			//FVector Direction = (aBoid->GetActorLocation() - Boid->GetActorLocation()).GetSafeNormal(); // Unsure of whether to normalize or not...
+			FVector Direction = aBoid->GetActorLocation() - Boid->GetActorLocation(); // Or WHEN to normalize...
 
+			// Add vector to the array of total calculated separation vectors (based upon distance to other Boid):
+			BoidVectors.Add(Direction / (Distance * Distance));
 
+			// Alternative attempt at trying to inversely calculate vector: (Doesn't work)
+			//float ProximityMultiplier = 1.0f - (Direction.Size() / Distance);
+			//BoidVectors.Add(Direction * ProximityMultiplier);
 
-			BoidVectors.Add(aBoid->GetActorLocation() - Boid->GetActorLocation());
-			//Separation = (aBoid->GetActorLocation() - Boid->GetActorLocation()).GetSafeNormal() * SeparationMultiplier;
 		}
 	}
 
@@ -165,15 +172,19 @@ FVector AFlock::CalculateSeparation(ABoid* aBoid)
 	{
 		for (int32 VecIdx = 0; VecIdx < BoidVectors.Num(); VecIdx++)
 		{
-			LocationSum += BoidVectors[VecIdx];
+			SeparationSum += BoidVectors[VecIdx];
 		}
 
-		AverageLocation = LocationSum / ((float)BoidVectors.Num());
+		AverageSeparation = SeparationSum / ((float)BoidVectors.Num());
 
-		Separation = AverageLocation.GetSafeNormal() * SeparationMultiplier; // * Distance Scalar
+		/*if (const UWorld* world = GetWorld())
+		{
+			GEngine->AddOnScreenDebugMessage(FMath::Rand(), world->GetDeltaSeconds(), FColor::Black, FString::Printf(TEXT("Average Separation: %s"), *AverageSeparation.ToString()));
+		}*/
+
+		Separation = AverageSeparation.GetSafeNormal() * SeparationMultiplier; // //Correct one
+		//Separation = AverageLocation * SeparationMultiplier; // * Distance Scalar 
 	}
-
-	
 
 	return Separation;
 }

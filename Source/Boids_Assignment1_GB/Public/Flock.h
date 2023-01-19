@@ -21,13 +21,13 @@ class BOIDS_ASSIGNMENT1_GB_API AFlock : public APawn
 	TArray<ABoid*> myBoids;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Boids | Multiplier Value", meta = (AllowPrivateAccess = "true"))
-	float CohesionMultiplier{ 200.0 };
+	float CohesionMultiplier{ 210.0 };
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Boids | Multiplier Value", meta = (AllowPrivateAccess = "true"))
-	float AlignmentMultiplier{ 200.0 };
+	float AlignmentMultiplier{ 250.0 };
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Boids | Multiplier Value", meta = (AllowPrivateAccess = "true"))
-	float SeparationMultiplier{ 100.0 };
+	float SeparationMultiplier{ 215.0 };
 
 
 public:
