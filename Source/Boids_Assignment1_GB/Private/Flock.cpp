@@ -166,18 +166,38 @@ FVector AFlock::CalculateSeparation(ABoid* aBoid)
 		if (aBoid != Boid)
 		{
 			// Find distance between the current Boid and target Boid:
-			float Distance = aBoid->GetDistanceTo(Boid);
-			
+			float Distance = aBoid->GetDistanceTo(Boid); // Magnitude/Length
+
+			float Distance2 = (aBoid->GetActorLocation() - Boid->GetActorLocation()).Size();
+
+
+			// 300.0f 
+
+			/// Radius 300.0f
+			///	length / 300.0f
+			///	if (1.0f - length / 300.0f > 0)
+			///	1.0f - length / 300.0f == ProxV
+			///	(Direction * ProxV) * ScalarMultiplierValue aka Strength
+
+
 			// Find direction of vector pointing from current Boid and target Boid:
-			//FVector Direction = (aBoid->GetActorLocation() - Boid->GetActorLocation()).GetSafeNormal(); // Unsure of whether to normalize or not...
-			FVector Direction = aBoid->GetActorLocation() - Boid->GetActorLocation(); // Or WHEN to normalize...
+			FVector Direction = (aBoid->GetActorLocation() - Boid->GetActorLocation()).GetSafeNormal(); // Unsure of whether to normalize or not...
+
+
+			// Direction * ProximityMultiplier
+			// 1.0 - 
+
+
+			
+			//FVector Direction = aBoid->GetActorLocation() - Boid->GetActorLocation(); // Or WHEN to normalize...
 
 			// Add vector to the array of total calculated separation vectors (based upon distance to other Boid):
-			BoidVectors.Add(Direction / (Distance * Distance));
+			//BoidVectors.Add(Direction / (Distance * Distance));
 
 			// Alternative attempt at trying to inversely calculate vector: (Doesn't work)
-			//float ProximityMultiplier = 1.0f - (Direction.Size() / Distance);
-			//BoidVectors.Add(Direction * ProximityMultiplier);
+			float ProximityMultiplier = 1.0f - (Direction.Size() / Distance); // (1 - 1/1)
+
+			BoidVectors.Add(Direction * ProximityMultiplier);
 
 		}
 	}
@@ -196,8 +216,8 @@ FVector AFlock::CalculateSeparation(ABoid* aBoid)
 			GEngine->AddOnScreenDebugMessage(FMath::Rand(), world->GetDeltaSeconds(), FColor::Black, FString::Printf(TEXT("Average Separation: %s"), *AverageSeparation.ToString()));
 		}*/
 
-		Separation = AverageSeparation.GetSafeNormal() * SeparationMultiplier; // //Correct one
-		//Separation = AverageLocation * SeparationMultiplier; // * Distance Scalar 
+		//Separation = AverageSeparation.GetSafeNormal() * SeparationMultiplier; // //Correct one
+		Separation = AverageSeparation * SeparationMultiplier; // * Distance Scalar 
 	}
 
 	return Separation;
