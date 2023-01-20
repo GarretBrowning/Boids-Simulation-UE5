@@ -1,8 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Flock.h"
-
 #include "Boid.h"
 #include "Kismet/GameplayStatics.h" // Needed for grabbing all ofo the Boids within the current game level.
 #include "UObject/UnrealTypePrivate.h"
@@ -31,8 +29,6 @@ void AFlock::BeginPlay()
 			// Casting the Actors to class Boid:
 			myBoids.Add(static_cast<ABoid*>(Actor));
 		}
-
-		//GEngine->AddOnScreenDebugMessage(FMath::Rand(), 5.0f, FColor::Red, FString::FromInt(myBoids.Num()));
 	}
 }
 
@@ -70,7 +66,6 @@ void AFlock::Tick(float DeltaTime)
 			Boid->ApplyMovement(DeltaTime, CalculateAlignment(Boid), CalculateCohesion(Boid), CalculateSeparation(Boid));
 		}
 	}
-	
 }
 
 // Called to bind functionality to input
@@ -170,7 +165,6 @@ FVector AFlock::CalculateSeparation(ABoid* aBoid)
 
 			float Distance2 = (aBoid->GetActorLocation() - Boid->GetActorLocation()).Size();
 
-
 			// 300.0f 
 
 			/// Radius 300.0f
@@ -179,16 +173,12 @@ FVector AFlock::CalculateSeparation(ABoid* aBoid)
 			///	1.0f - length / 300.0f == ProxV
 			///	(Direction * ProxV) * ScalarMultiplierValue aka Strength
 
-
 			// Find direction of vector pointing from current Boid and target Boid:
 			FVector Direction = (aBoid->GetActorLocation() - Boid->GetActorLocation()).GetSafeNormal(); // Unsure of whether to normalize or not...
-
 
 			// Direction * ProximityMultiplier
 			// 1.0 - 
 
-
-			
 			//FVector Direction = aBoid->GetActorLocation() - Boid->GetActorLocation(); // Or WHEN to normalize...
 
 			// Add vector to the array of total calculated separation vectors (based upon distance to other Boid):
@@ -198,7 +188,6 @@ FVector AFlock::CalculateSeparation(ABoid* aBoid)
 			float ProximityMultiplier = 1.0f - (Direction.Size() / Distance); // (1 - 1/1)
 
 			BoidVectors.Add(Direction * ProximityMultiplier);
-
 		}
 	}
 

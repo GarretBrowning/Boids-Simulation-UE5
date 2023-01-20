@@ -7,7 +7,7 @@
 ABoid::ABoid()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	// Set the Boid's velocity to a random unit vector as its velocity:
 	myVelocity = FMath::VRand();
@@ -32,27 +32,6 @@ void ABoid::BeginPlay()
 void ABoid::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	
-
-	//DrawDebugDirectionalArrow(World)
-	
-	/*if (DEBUG_MODE_ENABLED)
-	{*/
-	//#if DEBUG_MODE_ENABLED
-	if (DEBUG_MODE_ENABLED)
-	{
-		GEngine->AddOnScreenDebugMessage(FMath::Rand(), GetWorld()->GetDeltaSeconds(), FColor::Yellow, "Debug mode enabled!");
-	}
-	//#endif
-	//}
-
-	// Add the current velocity to the Boid's position each frame: #Todo: [HAVE NOT ACCOUNTED FOR DELTA TIME YET!]
-	//AddActorWorldOffset(myVelocity);
-
-	// Add acceleration to the Boid's velocity each frame:
-	//myVelocity += myAcceleration;
-
 }
 
 // Called to bind functionality to input
@@ -61,28 +40,25 @@ void ABoid::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-
 // #TODO: Should be refactored, currently should only be called by Flock class for movement:
 void ABoid::ApplyMovement(float DeltaTime, FVector Alignment, FVector Cohesion, FVector Separation)
 {
 	// Update Position:
-	//SetActorLocation(GetActorLocation() + (myVelocity * DeltaTime));
+	//SetActorLocation(GetActorLocation() + (myVelocity * DeltaTime)); // Essentially the same as adding actor world offset below
 	AddActorWorldOffset((myVelocity * DeltaTime));
-	//SetActorLocation(GetActorLocation() + (myVelocity * DeltaTime));
 
 	// Update Rotation:
-	//SetActorRotation(myVelocity.ToOrientationQuat());
-	SetActorRotation(FMath::RInterpTo(GetActorRotation(), FRotator(myVelocity.ToOrientationQuat()), DeltaTime, 0.5));
+	//SetActorRotation(myVelocity.ToOrientationQuat()); // Directly Set
+	SetActorRotation(FMath::RInterpTo(GetActorRotation(), FRotator(myVelocity.ToOrientationQuat()), DeltaTime, 0.5)); // Added Smoothing
 
 	// Apply Updates to Acceleration:
-
 	FVector Sum = (Alignment + Cohesion + Separation) / 3.0;
+	myAcceleration += Sum;
 
+	// Alternate method attempt of just adding all steering rules to the acceleration at once:
 	//myAcceleration += Alignment;
 	//myAcceleration += Cohesion;
 	//myAcceleration += Separation;
-	
-	myAcceleration += Sum;
 
 	// Update Velocity:
 	myVelocity += (myAcceleration * DeltaTime);
