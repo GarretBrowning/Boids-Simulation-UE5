@@ -2,6 +2,7 @@
 
 #include "Flock.h"
 #include "Boid.h"
+#include "Waypoint.h"
 #include "Kismet/GameplayStatics.h" // Needed for grabbing all ofo the Boids within the current game level.
 #include "UObject/UnrealTypePrivate.h"
 
@@ -18,6 +19,36 @@ void AFlock::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Need to now spawn the Boids randomly within a given spawn zone:
+	// Will try and do this within the flock class here:
+
+	int32 spawnNumber = 20;
+
+
+	// NEED TO RANDOMIZE LOCATION
+	// NEED TO RANDOMIZE ROTATION BETWEEN -360 -360 ON EACH AXIS
+	// Scale should be the same (unless we also want this to be random as well (perhaps 0.5-1 range).
+	FTransform A
+	{
+	FRotator{0.0f, 0.0f, 0.0f},                 // Rotation
+	FVector{1.0f, 2.0f, 3.0f},  // Translation
+	FVector{2.0f, 2.0f, 2.0f}   // Scale
+	};
+
+
+	for (size_t i = 0; i < spawnNumber; i++)
+	{
+		// This method will not work by doing the usual world pointer protection, I'm not sure why...
+	
+
+
+
+
+		//GetWorld()->SpawnActor<AActor>()
+	}
+
+
+
 	// Iterating through the valid list of Boid actors within the current level and adding them to the Boids collection:
 	if (const UWorld* World = GetWorld())
 	{
@@ -28,6 +59,25 @@ void AFlock::BeginPlay()
 		{
 			// Casting the Actors to class Boid:
 			myBoids.Add(static_cast<ABoid*>(Actor));
+		}
+
+		// Setting the detection radius of each Boid:
+		for (auto Boid : myBoids)
+		{
+			Boid->SetDetectionRadius(IndividualDetectionRadius);
+		}
+	}
+
+	// Iterating through the valid list of Waypoint actors within the current level and adding them to the Waypoints collection:
+	if (const UWorld* World = GetWorld())
+	{
+		TArray<AActor*> TempCollection;
+		UGameplayStatics::GetAllActorsOfClass(World, AWaypoint::StaticClass(), TempCollection);
+
+		for (AActor* Actor : TempCollection)
+		{
+			// Casting the Actors to class Waypoint:
+			myWaypoints.Add(static_cast<AWaypoint*>(Actor));
 		}
 	}
 }
@@ -53,17 +103,46 @@ void AFlock::Tick(float DeltaTime)
 
 			if (bShowSeparationDebugLines)
 			{
-				Boid->DebugSeparation(CalculateSeparation(Boid));	
+				Boid->DebugSeparation(CalculateSeparation(Boid));
+			}
+
+			if (bShowWaypointDebugLines)
+			{
+				Boid->DebugWaypointAttraction(CalculateWaypointAttraction(Boid));
+			}
+
+			if (bShowDetectionRadius)
+			{
+				Boid->DebugDrawDetectionRadius();
 			}
 		}
-	}
 
-	// Apply Movement to each Boid in the flock every frame:
-	if (bEnableMovement)
-	{
-		for (auto Boid : myBoids)
+		//for (auto Waypoint : myWaypoints)
+		//{
+		//	if (UWorld* world = GetWorld())
+		//	{
+		//		GEngine->AddOnScreenDebugMessage(FMath::Rand(), world->GetDeltaSeconds(), FColor::Orange, FString::Printf(TEXT("%s"), *Waypoint->GetName()));
+		//		//GEngine->AddOnScreenDebugMessage(FMath::Rand(), world->GetDeltaSeconds(), FColor::Purple, FString::Printf(TEXT("%s's Acceleration: %s"), *this->GetName(), *myAcceleration.ToString()));
+		//	}
+		//}
+		// Apply Movement to each Boid in the flock every frame:
+		if (bEnableMovement)
 		{
-			Boid->ApplyMovement(DeltaTime, CalculateAlignment(Boid), CalculateCohesion(Boid), CalculateSeparation(Boid));
+			for (auto Boid : myBoids)
+			{
+				//ACTUAL MOVEMENT CODE ---->
+				Boid->ApplyMovement(DeltaTime, CalculateAlignment(Boid), CalculateCohesion(Boid), CalculateSeparation(Boid));
+				Boid->ApplyMovement(DeltaTime, CalculateAlignment(Boid), CalculateCohesion(Boid), CalculateSeparation(Boid), CalculateWaypointAttraction(Boid));
+
+				// Only calculating separation rn:
+				//Boid->ApplyMovement(DeltaTime, FVector::ZeroVector, CalculateCohesion(Boid), CalculateSeparation(Boid));
+				//Boid->ApplyMovement(DeltaTime, FVector::ZeroVector, CalculateCohesion(Boid), FVector::ZeroVector);
+				//Boid->ApplyMovement(DeltaTime, CalculateAlignment(Boid), FVector::ZeroVector, FVector::ZeroVector);
+				//Boid->ApplyMovement(DeltaTime, FVector::ZeroVector, FVector::ZeroVector, CalculateSeparation(Boid));
+
+				//Boid->ApplyMovement(DeltaTime, FVector::ZeroVector, FVector::ZeroVector, FVector::ZeroVector);
+
+			}
 		}
 	}
 }
@@ -87,7 +166,9 @@ FVector AFlock::CalculateAlignment(ABoid* aBoid)
 	// Iterate through all boids and add their forward vectors to an array:
 	for (auto Boid : myBoids)
 	{
-		if (Boid != aBoid)
+		// Checking if we are not evaluating against ourselves & seeing if the Boid we are comparing to is within our detection radius.
+		if (Boid != aBoid && aBoid->GetDistanceTo(Boid) < aBoid->GetDetectionRadius()) 
+		//if (Boid!= aBoid)
 		{
 			BoidDirections.Add(Boid->GetActorForwardVector());
 		}
@@ -120,7 +201,8 @@ FVector AFlock::CalculateCohesion(ABoid* aBoid)
 	// Iterate through all boids and add their locations to an array:
 	for (auto Boid : myBoids)
 	{
-		if(Boid != aBoid)
+		// Excludes adding itself or any Boid that is not within its detection radius:
+		if(Boid != aBoid && aBoid->GetDistanceTo(Boid) < aBoid->GetDetectionRadius())
 		{
 			BoidLocations.Add(Boid->GetActorLocation());
 		}
@@ -135,12 +217,12 @@ FVector AFlock::CalculateCohesion(ABoid* aBoid)
 		}
 
 		AverageLocation = LocationSum / ((float)BoidLocations.Num());
+		
+		// 1. Calculating a vector with direction pointing towards the average boid location.
+		// 2. Getting the normal of this vector.
+		// 3. Multiplying the normal by the CohesionMultiplier scalar value.
+		Cohesion = (AverageLocation - aBoid->GetActorLocation()).GetSafeNormal() * CohesionMultiplier;
 	}
-
-	// 1. Calculating a vector with direction pointing towards the average boid location.
-	// 2. Getting the normal of this vector.
-	// 3. Multiplying the normal by the CohesionMultiplier scalar value.
-	Cohesion = (AverageLocation - aBoid->GetActorLocation()).GetSafeNormal() * CohesionMultiplier;
 
 	return Cohesion; 
 }
@@ -158,7 +240,9 @@ FVector AFlock::CalculateSeparation(ABoid* aBoid)
 	for (auto Boid : myBoids)
 	{
 		// #Todo: Should add nullptr protection
-		if (aBoid != Boid)
+
+		// Excludes adding itself or any Boid that is not within its detection radius:
+		if (aBoid != Boid && aBoid->GetDistanceTo(Boid) < aBoid->GetDetectionRadius())
 		{
 			// Find distance between the current Boid and target Boid:
 			float Distance = aBoid->GetDistanceTo(Boid); // Magnitude/Length
@@ -185,7 +269,8 @@ FVector AFlock::CalculateSeparation(ABoid* aBoid)
 			//BoidVectors.Add(Direction / (Distance * Distance));
 
 			// Alternative attempt at trying to inversely calculate vector: (Doesn't work)
-			float ProximityMultiplier = 1.0f - (Direction.Size() / Distance); // (1 - 1/1)
+			//float ProximityMultiplier = 1.0f - (Direction.Size() / Distance); // (1 - 1/1)
+			float ProximityMultiplier = 1.0f - (Distance / Boid->GetDetectionRadius()); // THIS SHOULD BE THE ONE!
 
 			BoidVectors.Add(Direction * ProximityMultiplier);
 		}
@@ -210,5 +295,57 @@ FVector AFlock::CalculateSeparation(ABoid* aBoid)
 	}
 
 	return Separation;
+}
+
+FVector AFlock::CalculateWaypointAttraction(ABoid* aBoid)
+{
+	TArray<FVector> WaypointVectors;
+	TArray<float> WaypointDistances;
+	FVector AttractionSum(0.f);
+	FVector AverageAttraction(0.f);
+
+	FVector WaypointAttraction(0.f);
+
+	// Error checking to ensure we ahve at least 1 waypoint active in the scene
+	if (myWaypoints.Num() > 0)
+	{
+		for (auto Waypoint : myWaypoints)
+		{
+			float DistanceToWaypoint = aBoid->GetDistanceTo(Waypoint); // Magnitude/Length
+
+			// Only calculate steering force if we are within the waypoint attraction radius
+			if (DistanceToWaypoint < Waypoint->GetAttractionRadius())
+			{
+
+				// Find direction of vector pointing from Boid to target waypoint:
+				FVector Direction = (Waypoint->GetActorLocation() - aBoid->GetActorLocation()).GetSafeNormal(); // Unsure of whether to normalize or not...
+
+
+				float ProximityMultiplier = DistanceToWaypoint / Waypoint->GetAttractionRadius(); // THIS SHOULD BE THE ONE!
+
+				WaypointVectors.Add(Direction * ProximityMultiplier);
+			}
+		}
+	}
+
+	if (WaypointVectors.Num() > 0)
+	{
+		for (int32 VecIdx = 0; VecIdx < WaypointVectors.Num(); VecIdx++)
+		{
+			AttractionSum += WaypointVectors[VecIdx];
+		}
+
+		AverageAttraction = AttractionSum / ((float)WaypointVectors.Num());
+
+		/*if (const UWorld* world = GetWorld())
+		{
+			GEngine->AddOnScreenDebugMessage(FMath::Rand(), world->GetDeltaSeconds(), FColor::Black, FString::Printf(TEXT("Average Separation: %s"), *AverageSeparation.ToString()));
+		}*/
+
+		//Separation = AverageSeparation.GetSafeNormal() * SeparationMultiplier; // //Correct one
+		WaypointAttraction = AverageAttraction * WaypointAttractionMultiplier; // * Distance Scalar 
+	}
+	
+	return WaypointAttraction;
 }
 

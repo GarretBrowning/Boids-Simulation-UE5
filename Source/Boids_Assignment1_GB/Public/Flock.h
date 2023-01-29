@@ -9,6 +9,7 @@
 //constexpr auto DEBUG_MODE_ENABLED = 1;
 
 class ABoid;
+class AWaypoint;
 
 UCLASS()
 class BOIDS_ASSIGNMENT1_GB_API AFlock : public APawn
@@ -20,14 +21,28 @@ class BOIDS_ASSIGNMENT1_GB_API AFlock : public APawn
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	TArray<ABoid*> myBoids;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boids | Multiplier Value", meta = (AllowPrivateAccess = "true"))
-	float CohesionMultiplier{ 210.0 };
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Boids | Waypoints", meta = (AllowPrivateAccess = "true"))
+	TArray<AWaypoint*> myWaypoints;
+
+	// BOID CLASS IN EDITOR USED TO SPAWN:
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Boids | Spawning", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AActor> BoidClass;
+
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boids | Multiplier Value", meta = (AllowPrivateAccess = "true"))
-	float AlignmentMultiplier{ 250.0 };
+	float CohesionMultiplier{ 1.0 };
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boids | Multiplier Value", meta = (AllowPrivateAccess = "true"))
-	float SeparationMultiplier{ 215.0 };
+	float AlignmentMultiplier{ 1.0 };
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boids | Multiplier Value", meta = (AllowPrivateAccess = "true"))
+	float SeparationMultiplier{ 1.0 };
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boids | Multiplier Value", meta = (AllowPrivateAccess = "true"))
+	float WaypointAttractionMultiplier{ 1.0 };
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boids | Detection Radius", meta = (AllowPrivateAccess = "true"))
+	float IndividualDetectionRadius{ 0.f };
 
 
 	// Debugging for Blueprints:
@@ -42,9 +57,13 @@ class BOIDS_ASSIGNMENT1_GB_API AFlock : public APawn
 	bool bShowSeparationDebugLines{ false };
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boids | Debugging", meta = (AllowPrivateAccess = "true"))
+	bool bShowWaypointDebugLines{ false };
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boids | Debugging", meta = (AllowPrivateAccess = "true"))
+	bool bShowDetectionRadius{ false };
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boids | Debugging", meta = (AllowPrivateAccess = "true"))
 	bool bEnableMovement{ false };
-
-
 
 public:
 	// Sets default values for this pawn's properties
@@ -70,6 +89,10 @@ public:
 	// Calculating Cohesion Vector:
 	FVector CalculateCohesion(ABoid* aBoid);
 
-	// Calculating Cohesion Vector:
+	// Calculating Separation Vector:
 	FVector CalculateSeparation(ABoid* aBoid);
+
+
+	// WAYPOINT //
+	FVector CalculateWaypointAttraction(ABoid* aBoid);
 };

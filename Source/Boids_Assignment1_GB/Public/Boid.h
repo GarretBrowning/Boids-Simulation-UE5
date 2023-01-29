@@ -25,20 +25,23 @@ class BOIDS_ASSIGNMENT1_GB_API ABoid : public APawn
 	UPROPERTY(EditDefaultsOnly) FName myBoidBodyName = " Boid Body";
 
 	// Detection Radius for use later
-	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Boid | Movement", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Boid | Movement", meta = (AllowPrivateAccess = "true"))
 	float myDetectionRadius{ 100.0 };
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Boid | Movement", meta = (AllowPrivateAccess = "true"))
-	float myMinSpeed{ 1.0f };
+	float myMinSpeed{ 30.0f };
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Boid | Movement", meta = (AllowPrivateAccess = "true"))
-	float myMaxSpeed{ 50.0f };
+	float myMaxSpeed{ 70.0f };
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid | Movement", meta = (AllowPrivateAccess = "true"))
 	FVector myVelocity {0.f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid | Movement", meta = (AllowPrivateAccess = "true"))
 	FVector myAcceleration {0.f};
+
+	// Simple multiplier used to help draw the debug lines
+	float myDebugLineMultiplier{ 10.0f };
 
 public:
 	// Sets default values for this pawn's properties
@@ -57,7 +60,19 @@ public:
 
 
 	// MOVEMENT //
-	void ApplyMovement(float DeltaTime, FVector Alignment = FVector::ZeroVector, FVector Cohesion = FVector::ZeroVector, FVector Separation = FVector::ZeroVector);
+	void ApplyMovement(float DeltaTime, 
+		FVector Alignment = FVector::ZeroVector, 
+		FVector Cohesion = FVector::ZeroVector, 
+		FVector Separation = FVector::ZeroVector, 
+		FVector WaypointAttraction = FVector::ZeroVector);
+
+	void ApplyWaypointMovement();
+
+	// Returns the Boid's Detection Radius
+	float GetDetectionRadius();
+
+	// Set the Boid's Detection Radius
+	void SetDetectionRadius(float aRadius);
 
 	// DEBUGGING //
 
@@ -72,4 +87,12 @@ public:
 	// Draws a debug arrow in the direction Separation is steering the Boid
 	UFUNCTION(BlueprintCallable)
 	void DebugSeparation(FVector Separation);
+
+	// Draws a debug arrow in the direction the Waypoint is steering the Boid
+	UFUNCTION(BlueprintCallable)
+	void DebugWaypointAttraction(FVector WaypointAttraction);
+
+	// Draws a debug sphere around the Boid based upon its detection radius
+	UFUNCTION(BlueprintCallable)
+	void DebugDrawDetectionRadius();
 };
