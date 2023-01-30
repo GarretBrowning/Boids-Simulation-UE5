@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Waypoint.h"
 
 // Sets default values
@@ -29,16 +26,19 @@ void AWaypoint::Tick(float DeltaTime)
 	}
 }
 
+// Gets the value of the Waypoint's attraction radius:
 float AWaypoint::GetAttractionRadius()
 {
 	return myAttractionRadius;
 }
 
+// Sets the radius of the Waypoint's attraction radius based on the given value:
 void AWaypoint::SetAttractionRadius(float aRadius)
 {
 	myAttractionRadius = aRadius > 0 ? aRadius : myAttractionRadius;
 }
 
+// Draws the attraction radius:
 void AWaypoint::DebugDrawAttractionRadius()
 {
 	if (const UWorld* world = GetWorld())

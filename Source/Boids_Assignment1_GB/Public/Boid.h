@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// The base Boid class used for representing each individual flock member.
 
 #pragma once
 
@@ -6,38 +6,45 @@
 #include "GameFramework/Pawn.h"
 #include "Boid.generated.h"
 
-//#define DEBUG_MODE_ENABLED 1
-
-// Global Constexpr Variable Used As A Debugging Flag:
-constexpr auto DEBUG_MODE_ENABLED = 1;
-
 UCLASS()
 class BOIDS_ASSIGNMENT1_GB_API ABoid : public APawn
 {
 	GENERATED_BODY()
 
 	// Root Component
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true")) USceneComponent* myRoot;
-	UPROPERTY() FName myRootComponentName = "Root";
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	USceneComponent* myRoot;
+
+	// Name of the Root Component
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	FName myRootComponentName = "Root";
 
 	// Boid Visual Representation (Cone)
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true")) UStaticMeshComponent* myBoidBody;
-	UPROPERTY(EditDefaultsOnly) FName myBoidBodyName = " Boid Body";
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* myBoidBody;
 
-	// Detection Radius for use later
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Boid | Movement", meta = (AllowPrivateAccess = "true"))
+	// Name of the Boid's Body (StaticMeshComponent / Cone)
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	FName myBoidBodyName = "Boid Body";
+
+	// Detection Radius
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Boid | Movement", meta = (AllowPrivateAccess = "true"))
 	float myDetectionRadius{ 100.0 };
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Boid | Movement", meta = (AllowPrivateAccess = "true"))
+	// Minimum Speed
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Boid | Movement", meta = (AllowPrivateAccess = "true"))
 	float myMinSpeed{ 30.0f };
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadonly, Category = "Boid | Movement", meta = (AllowPrivateAccess = "true"))
+	// Maximum Speed
+	UPROPERTY(VisibleAnywhere, BlueprintReadonly, Category = "Boid | Movement", meta = (AllowPrivateAccess = "true"))
 	float myMaxSpeed{ 70.0f };
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid | Movement", meta = (AllowPrivateAccess = "true"))
+	// Accumulated/Current Velocity
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Boid | Movement", meta = (AllowPrivateAccess = "true"))
 	FVector myVelocity {0.f};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid | Movement", meta = (AllowPrivateAccess = "true"))
+	// Acceleration
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Boid | Movement", meta = (AllowPrivateAccess = "true"))
 	FVector myAcceleration {0.f};
 
 	// Simple multiplier used to help draw the debug lines
@@ -58,21 +65,31 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-
-	// MOVEMENT //
+	// Called to apply movement based upon the given rules of alignment, cohesion, separation, and any active waypoints:
 	void ApplyMovement(float DeltaTime, 
 		FVector Alignment = FVector::ZeroVector, 
 		FVector Cohesion = FVector::ZeroVector, 
 		FVector Separation = FVector::ZeroVector, 
 		FVector WaypointAttraction = FVector::ZeroVector);
 
-	void ApplyWaypointMovement();
-
 	// Returns the Boid's Detection Radius
 	float GetDetectionRadius();
 
 	// Set the Boid's Detection Radius
 	void SetDetectionRadius(float aRadius);
+
+	// Returns the Boid's Minimum Speed
+	float GetMinimumSpeed();
+
+	// Set the Boid's Minimum Speed
+	void SetMinimumSpeed(float aSpeed);
+
+	// Returns the Boid's Maximum Speed
+	float GetMaximumSpeed();
+
+	// Set the Boid's Maximum Speed
+	void SetMaximumSpeed(float aSpeed);
+
 
 	// DEBUGGING //
 
